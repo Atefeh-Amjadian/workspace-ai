@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models.email import Email
 from app.schemas.email import EmailCreate
-
+from app.services.ai_service import generate_text
 
 def create_email(db: Session, email_data: EmailCreate) -> Email:
     email = Email(
@@ -24,3 +24,27 @@ def get_emails(db: Session) -> list[Email]:
 
 def get_email_by_id(db: Session, email_id: int) -> Email | None:
     return db.query(Email).filter(Email.id == email_id).first()
+
+
+def summarize_email(db: Session, email_id: int) -> Email | None:
+    email = get_email_by_id(db=db, email_id=email_id)
+
+    if email is None:
+        return None
+
+    prompt = f"""
+Summarize this email in one concise sentence.
+
+Subject: {email.subject}
+Sender: {email.sender}
+Category: {email.category}
+"""
+
+    summary = generate_text(prompt)
+
+    email.summary = summary
+
+    db.commit()
+    db.refresh(email)
+
+    return email
