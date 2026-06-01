@@ -35,3 +35,12 @@ def summarize_email(email_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Email not found")
 
     return email
+
+@router.post("/{email_id}/draft-reply", response_model=EmailResponse)
+def generate_draft_reply(email_id: int, db: Session = Depends(get_db)):
+    email = email_service.generate_draft_reply(db=db, email_id=email_id)
+
+    if email is None:
+        raise HTTPException(status_code=404, detail="Email not found")
+
+    return email

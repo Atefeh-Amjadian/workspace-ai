@@ -48,3 +48,37 @@ Category: {email.category}
     db.refresh(email)
 
     return email
+
+def generate_draft_reply(db: Session, email_id: int) -> Email | None:
+    email = get_email_by_id(db=db, email_id=email_id)
+
+    if email is None:
+        return None
+
+    prompt = f"""
+You are an email assistant.
+
+Write a short, natural, professional reply to the email below.
+
+Rules:
+- Maximum 3 sentences.
+- Do not include a subject line.
+- Do not include placeholders like [Your Name].
+- Do not invent details.
+- Use clear and simple English.
+
+Email:
+Subject: {email.subject}
+Sender: {email.sender}
+Category: {email.category}
+Summary: {email.summary or "No summary available"}
+"""
+
+    draft_reply = generate_text(prompt)
+
+    email.draft_reply = draft_reply
+
+    db.commit()
+    db.refresh(email)
+
+    return email
