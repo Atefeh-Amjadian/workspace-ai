@@ -13,6 +13,8 @@ class EmailResponse(BaseModel):
     sender: str
     status: str
     category: str
+    summary: str | None
+    draft_reply: str | None
 
     model_config = {
         "from_attributes": True

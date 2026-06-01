@@ -16,7 +16,11 @@ class Email(Base):
 
     status: Mapped[str] = mapped_column(String(50), default="new", nullable=False)
     category: Mapped[str] = mapped_column(String(50), default="fyi", nullable=False)
-    
+
+    summary: Mapped[str | None] = mapped_column(String(2000), nullable=True)
+
+    draft_reply: Mapped[str | None] = mapped_column(String(5000), nullable=True)
+
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
