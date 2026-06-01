@@ -15,7 +15,8 @@ class Email(Base):
     sender: Mapped[str] = mapped_column(String(255), nullable=False)
 
     status: Mapped[str] = mapped_column(String(50), default="new", nullable=False)
-
+    category: Mapped[str] = mapped_column(String(50), default="fyi", nullable=False)
+    
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,

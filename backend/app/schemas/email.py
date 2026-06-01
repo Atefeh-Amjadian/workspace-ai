@@ -4,6 +4,7 @@ from pydantic import BaseModel
 class EmailCreate(BaseModel):
     subject: str
     sender: str
+    category: str = "fyi"
 
 
 class EmailResponse(BaseModel):
@@ -11,6 +12,7 @@ class EmailResponse(BaseModel):
     subject: str
     sender: str
     status: str
+    category: str
 
     model_config = {
         "from_attributes": True

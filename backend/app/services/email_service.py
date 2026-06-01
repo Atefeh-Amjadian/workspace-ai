@@ -8,6 +8,7 @@ def create_email(db: Session, email_data: EmailCreate) -> Email:
     email = Email(
         subject=email_data.subject,
         sender=email_data.sender,
+        category=email_data.category,
     )
 
     db.add(email)
