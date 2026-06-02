@@ -36,11 +36,20 @@ def summarize_email(db: Session, email_id: int) -> Email | None:
         return None
 
     prompt = f"""
+You are an email assistant.
+
 Summarize this email in one concise sentence.
 
+Email:
 Subject: {email.subject}
 Sender: {email.sender}
+Snippet: {email.snippet or "No email content available"}
 Category: {email.category}
+
+Rules:
+- Keep it short.
+- Do not invent details.
+- Use clear and simple English.
 """
 
     summary = generate_text(prompt)
@@ -63,18 +72,19 @@ You are an email assistant.
 
 Write a short, natural, professional reply to the email below.
 
+Email:
+Subject: {email.subject}
+Sender: {email.sender}
+Snippet: {email.snippet or "No email content available"}
+Category: {email.category}
+Summary: {email.summary or "No summary available"}
+
 Rules:
 - Maximum 3 sentences.
 - Do not include a subject line.
 - Do not include placeholders like [Your Name].
 - Do not invent details.
 - Use clear and simple English.
-
-Email:
-Subject: {email.subject}
-Sender: {email.sender}
-Category: {email.category}
-Summary: {email.summary or "No summary available"}
 """
 
     draft_reply = generate_text(prompt)
@@ -102,6 +112,12 @@ important
 fyi
 spam
 
+Email:
+Subject: {email.subject}
+Sender: {email.sender}
+Snippet: {email.snippet or "No email content available"}
+Summary: {email.summary or "No summary available"}
+
 Rules:
 - Return only one word.
 - Do not explain.
@@ -110,11 +126,6 @@ Rules:
 - Choose "important" if it matters but is not urgent.
 - Choose "fyi" if it is informational.
 - Choose "spam" if it is promotional, irrelevant, or suspicious.
-
-Email:
-Subject: {email.subject}
-Sender: {email.sender}
-Summary: {email.summary or "No summary available"}
 """
 
     category = generate_text(prompt).lower().strip()
