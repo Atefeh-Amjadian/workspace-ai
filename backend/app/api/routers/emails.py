@@ -29,7 +29,10 @@ def get_email(email_id: int, db: Session = Depends(get_db)):
 
 @router.post("/{email_id}/summarize", response_model=EmailResponse)
 def summarize_email(email_id: int, db: Session = Depends(get_db)):
-    email = email_service.summarize_email(db=db, email_id=email_id)
+    try:
+        email = email_service.summarize_email(db=db, email_id=email_id)
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error))
 
     if email is None:
         raise HTTPException(status_code=404, detail="Email not found")
@@ -38,7 +41,10 @@ def summarize_email(email_id: int, db: Session = Depends(get_db)):
 
 @router.post("/{email_id}/draft-reply", response_model=EmailResponse)
 def generate_draft_reply(email_id: int, db: Session = Depends(get_db)):
-    email = email_service.generate_draft_reply(db=db, email_id=email_id)
+    try:
+        email = email_service.generate_draft_reply(db=db, email_id=email_id)
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error))
 
     if email is None:
         raise HTTPException(status_code=404, detail="Email not found")
