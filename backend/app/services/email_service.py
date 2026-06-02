@@ -82,3 +82,48 @@ Summary: {email.summary or "No summary available"}
     db.refresh(email)
 
     return email
+
+
+def classify_email(db: Session, email_id: int) -> Email | None:
+    email = get_email_by_id(db=db, email_id=email_id)
+
+    if email is None:
+        return None
+
+    prompt = f"""
+You are an email classification assistant.
+
+Classify the email into exactly one of these categories:
+urgent
+important
+fyi
+spam
+
+Rules:
+- Return only one word.
+- Do not explain.
+- Do not use punctuation.
+- Choose "urgent" only if immediate action is required.
+- Choose "important" if it matters but is not urgent.
+- Choose "fyi" if it is informational.
+- Choose "spam" if it is promotional, irrelevant, or suspicious.
+
+Email:
+Subject: {email.subject}
+Sender: {email.sender}
+Summary: {email.summary or "No summary available"}
+"""
+
+    category = generate_text(prompt).lower().strip()
+
+    allowed_categories = {"urgent", "important", "fyi", "spam"}
+
+    if category not in allowed_categories:
+        category = "fyi"
+
+    email.category = category
+
+    db.commit()
+    db.refresh(email)
+
+    return email

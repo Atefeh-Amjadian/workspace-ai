@@ -50,3 +50,15 @@ def generate_draft_reply(email_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Email not found")
 
     return email
+
+@router.post("/{email_id}/classify", response_model=EmailResponse)
+def classify_email(email_id: int, db: Session = Depends(get_db)):
+    try:
+        email = email_service.classify_email(db=db, email_id=email_id)
+    except RuntimeError as error:
+        raise HTTPException(status_code=503, detail=str(error))
+
+    if email is None:
+        raise HTTPException(status_code=404, detail="Email not found")
+
+    return email
