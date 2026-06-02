@@ -149,9 +149,20 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
     saved_emails = []
 
     for gmail_email in gmail_emails:
+        existing_email = (
+            db.query(Email)
+            .filter(Email.gmail_id == gmail_email["gmail_id"])
+            .first()
+        )
+
+        if existing_email:
+            continue
+
         email = Email(
             subject=gmail_email["subject"],
             sender=gmail_email["sender"],
+            gmail_id=gmail_email["gmail_id"],
+            snippet=gmail_email["snippet"],
             category="fyi",
         )
 
