@@ -2,7 +2,7 @@ from sqlalchemy.orm import Session
 
 from app.models.email import Email
 from app.schemas.email import EmailCreate
-from app.services.ai_service import generate_text
+from app.services.ai_service import classify_text, generate_reply, summarize_text
 from app.services.gmail_service import get_unread_emails
 
 def create_email(db: Session, email_data: EmailCreate) -> Email:
@@ -35,24 +35,12 @@ def summarize_email(db: Session, email_id: int) -> Email | None:
     if email is None:
         return None
 
-    prompt = f"""
-You are an email assistant.
-
-Summarize this email in one concise sentence.
-
-Email:
-Subject: {email.subject}
-Sender: {email.sender}
-Snippet: {email.snippet or "No email content available"}
-Category: {email.category}
-
-Rules:
-- Keep it short.
-- Do not invent details.
-- Use clear and simple English.
-"""
-
-    summary = generate_text(prompt)
+    summary = summarize_text(
+    subject=email.subject,
+    sender=email.sender,
+    snippet=email.snippet,
+    category=email.category,
+    )
 
     email.summary = summary
 
@@ -67,27 +55,13 @@ def generate_draft_reply(db: Session, email_id: int) -> Email | None:
     if email is None:
         return None
 
-    prompt = f"""
-You are an email assistant.
-
-Write a short, natural, professional reply to the email below.
-
-Email:
-Subject: {email.subject}
-Sender: {email.sender}
-Snippet: {email.snippet or "No email content available"}
-Category: {email.category}
-Summary: {email.summary or "No summary available"}
-
-Rules:
-- Maximum 3 sentences.
-- Do not include a subject line.
-- Do not include placeholders like [Your Name].
-- Do not invent details.
-- Use clear and simple English.
-"""
-
-    draft_reply = generate_text(prompt)
+    draft_reply = generate_reply(
+    subject=email.subject,
+    sender=email.sender,
+    snippet=email.snippet,
+    category=email.category,
+    summary=email.summary,
+    )
 
     email.draft_reply = draft_reply
 
@@ -103,37 +77,12 @@ def classify_email(db: Session, email_id: int) -> Email | None:
     if email is None:
         return None
 
-    prompt = f"""
-You are an email classification assistant.
-
-Classify the email into exactly one of these categories:
-urgent
-important
-fyi
-spam
-
-Email:
-Subject: {email.subject}
-Sender: {email.sender}
-Snippet: {email.snippet or "No email content available"}
-Summary: {email.summary or "No summary available"}
-
-Rules:
-- Return only one word.
-- Do not explain.
-- Do not use punctuation.
-- Choose "urgent" only if immediate action is required.
-- Choose "important" if it matters but is not urgent.
-- Choose "fyi" if it is informational.
-- Choose "spam" if it is promotional, irrelevant, or suspicious.
-"""
-
-    category = generate_text(prompt).lower().strip()
-
-    allowed_categories = {"urgent", "important", "fyi", "spam"}
-
-    if category not in allowed_categories:
-        category = "fyi"
+    category = classify_text(
+    subject=email.subject,
+    sender=email.sender,
+    snippet=email.snippet,
+    summary=email.summary,
+    )
 
     email.category = category
 
