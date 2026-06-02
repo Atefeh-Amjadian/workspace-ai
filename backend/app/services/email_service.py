@@ -3,11 +3,14 @@ from sqlalchemy.orm import Session
 from app.models.email import Email
 from app.schemas.email import EmailCreate
 from app.services.ai_service import generate_text
+from app.services.gmail_service import get_unread_emails
 
 def create_email(db: Session, email_data: EmailCreate) -> Email:
     email = Email(
         subject=email_data.subject,
         sender=email_data.sender,
+        gmail_id=email_data.gmail_id,
+        snippet=email_data.snippet,
         category=email_data.category,
     )
 
@@ -127,3 +130,26 @@ Summary: {email.summary or "No summary available"}
     db.refresh(email)
 
     return email
+
+
+def sync_unread_gmail_emails(db: Session) -> list[Email]:
+    gmail_emails = get_unread_emails()
+
+    saved_emails = []
+
+    for gmail_email in gmail_emails:
+        email = Email(
+            subject=gmail_email["subject"],
+            sender=gmail_email["sender"],
+            category="fyi",
+        )
+
+        db.add(email)
+        saved_emails.append(email)
+
+    db.commit()
+
+    for email in saved_emails:
+        db.refresh(email)
+
+    return saved_emails

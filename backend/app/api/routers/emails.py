@@ -62,3 +62,7 @@ def classify_email(email_id: int, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="Email not found")
 
     return email
+
+@router.post("/sync-gmail", response_model=list[EmailResponse])
+def sync_gmail_emails(db: Session = Depends(get_db)):
+    return email_service.sync_unread_gmail_emails(db=db)
