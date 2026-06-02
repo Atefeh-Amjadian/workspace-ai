@@ -116,6 +116,30 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
         )
 
         db.add(email)
+        db.flush()
+
+        email.summary = summarize_text(
+            subject=email.subject,
+            sender=email.sender,
+            snippet=email.snippet,
+            category=email.category,
+        )
+
+        email.category = classify_text(
+            subject=email.subject,
+            sender=email.sender,
+            snippet=email.snippet,
+            summary=email.summary,
+        )
+
+        email.draft_reply = generate_reply(
+            subject=email.subject,
+            sender=email.sender,
+            snippet=email.snippet,
+            category=email.category,
+            summary=email.summary,
+        )
+
         saved_emails.append(email)
 
     db.commit()
