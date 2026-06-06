@@ -36,7 +36,7 @@ def get_gmail_service():
     return build("gmail", "v1", credentials=creds)
 
 
-def get_unread_emails(max_results: int = 2):
+def get_unread_emails(max_results: int = 20):
     service = get_gmail_service()
 
     result = (

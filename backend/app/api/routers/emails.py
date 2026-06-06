@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, BackgroundTasks
 from sqlalchemy.orm import Session
 
 from app.db.dependencies import get_db
@@ -64,5 +64,16 @@ def classify_email(email_id: int, db: Session = Depends(get_db)):
     return email
 
 @router.post("/sync-gmail", response_model=list[EmailResponse])
-def sync_gmail_emails(db: Session = Depends(get_db)):
-    return email_service.sync_unread_gmail_emails(db=db)
+def sync_gmail_emails(
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    emails = email_service.sync_unread_gmail_emails(db=db)
+
+    for email in emails:
+        background_tasks.add_task(
+            email_service.process_email_with_ai,
+            email.id,
+        )
+
+    return emails

@@ -4,7 +4,7 @@ from app.models.email import Email
 from app.schemas.email import EmailCreate
 from app.services.ai_service import classify_text, generate_reply, summarize_text
 from app.services.gmail_service import get_unread_emails
-
+from app.db.session import SessionLocal
 import logging
 
 logger = logging.getLogger(__name__)
@@ -103,7 +103,7 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
     saved_emails = []
 
     for gmail_email in gmail_emails:
-        logger.info("Processing email: %s", gmail_email["subject"])
+        logger.info("Syncing email: %s", gmail_email["subject"])
 
         existing_email = (
             db.query(Email)
@@ -123,35 +123,6 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
         )
 
         db.add(email)
-        db.flush()
-
-        logger.info("Generating summary...")
-        email.summary = summarize_text(
-            subject=email.subject,
-            sender=email.sender,
-            snippet=email.snippet,
-            category=email.category,
-        )
-
-        logger.info("Generating classification...")
-        email.category = classify_text(
-            subject=email.subject,
-            sender=email.sender,
-            snippet=email.snippet,
-            summary=email.summary,
-        )
-
-        logger.info("Generating draft reply...")
-        email.draft_reply = generate_reply(
-            subject=email.subject,
-            sender=email.sender,
-            snippet=email.snippet,
-            category=email.category,
-            summary=email.summary,
-        )
-
-        logger.info("Finished email: %s", gmail_email["subject"])
-
         saved_emails.append(email)
 
     db.commit()
@@ -160,3 +131,49 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
         db.refresh(email)
 
     return saved_emails
+
+
+def process_email_with_ai(email_id: int) -> None:
+    db = SessionLocal()
+
+    try:
+        email = get_email_by_id(db=db, email_id=email_id)
+
+        if email is None:
+            return
+
+        logger.info("Background AI processing started for email id=%s", email_id)
+
+        email.summary = summarize_text(
+            subject=email.subject,
+            sender=email.sender,
+            snippet=email.snippet,
+            category=email.category,
+        )
+
+        email.category = classify_text(
+            subject=email.subject,
+            sender=email.sender,
+            snippet=email.snippet,
+            summary=email.summary,
+        )
+
+        email.draft_reply = generate_reply(
+            subject=email.subject,
+            sender=email.sender,
+            snippet=email.snippet,
+            category=email.category,
+            summary=email.summary,
+        )
+
+        db.commit()
+        db.refresh(email)
+
+        logger.info("Background AI processing finished for email id=%s", email_id)
+
+    except RuntimeError as error:
+        logger.error("AI processing failed for email id=%s: %s", email_id, error)
+        db.rollback()
+
+    finally:
+        db.close()
