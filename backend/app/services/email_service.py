@@ -5,6 +5,11 @@ from app.schemas.email import EmailCreate
 from app.services.ai_service import classify_text, generate_reply, summarize_text
 from app.services.gmail_service import get_unread_emails
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 def create_email(db: Session, email_data: EmailCreate) -> Email:
     email = Email(
         subject=email_data.subject,
@@ -98,6 +103,8 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
     saved_emails = []
 
     for gmail_email in gmail_emails:
+        logger.info("Processing email: %s", gmail_email["subject"])
+
         existing_email = (
             db.query(Email)
             .filter(Email.gmail_id == gmail_email["gmail_id"])
@@ -118,6 +125,7 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
         db.add(email)
         db.flush()
 
+        logger.info("Generating summary...")
         email.summary = summarize_text(
             subject=email.subject,
             sender=email.sender,
@@ -125,6 +133,7 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
             category=email.category,
         )
 
+        logger.info("Generating classification...")
         email.category = classify_text(
             subject=email.subject,
             sender=email.sender,
@@ -132,6 +141,7 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
             summary=email.summary,
         )
 
+        logger.info("Generating draft reply...")
         email.draft_reply = generate_reply(
             subject=email.subject,
             sender=email.sender,
@@ -139,6 +149,8 @@ def sync_unread_gmail_emails(db: Session) -> list[Email]:
             category=email.category,
             summary=email.summary,
         )
+
+        logger.info("Finished email: %s", gmail_email["subject"])
 
         saved_emails.append(email)
 
