@@ -16,6 +16,7 @@ class Email(Base):
     gmail_id: Mapped[str | None] = mapped_column(String(255), unique=True, nullable=True)
     snippet: Mapped[str | None] = mapped_column(String(2000), nullable=True)
     status: Mapped[str] = mapped_column(String(50), default="new", nullable=False)
+    ai_status: Mapped[str] = mapped_column(String(50), default="pending", nullable=False)
     category: Mapped[str] = mapped_column(String(50), default="fyi", nullable=False)
     summary: Mapped[str | None] = mapped_column(String(2000), nullable=True)
     draft_reply: Mapped[str | None] = mapped_column(String(5000), nullable=True)

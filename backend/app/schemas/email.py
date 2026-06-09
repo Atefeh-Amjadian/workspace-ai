@@ -16,6 +16,7 @@ class EmailResponse(BaseModel):
     gmail_id: str | None
     snippet: str | None
     status: str
+    ai_status: str
     category: str
     summary: str | None
     draft_reply: str | None

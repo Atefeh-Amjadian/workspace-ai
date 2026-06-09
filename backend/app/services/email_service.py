@@ -144,6 +144,9 @@ def process_email_with_ai(email_id: int) -> None:
 
         logger.info("Background AI processing started for email id=%s", email_id)
 
+        email.ai_status = "processing"
+        db.commit()
+
         email.summary = summarize_text(
             subject=email.subject,
             sender=email.sender,
@@ -166,6 +169,8 @@ def process_email_with_ai(email_id: int) -> None:
             summary=email.summary,
         )
 
+        email.ai_status = "completed"
+
         db.commit()
         db.refresh(email)
 
@@ -173,7 +178,12 @@ def process_email_with_ai(email_id: int) -> None:
 
     except RuntimeError as error:
         logger.error("AI processing failed for email id=%s: %s", email_id, error)
-        db.rollback()
+
+        if "email" in locals() and email is not None:
+            email.ai_status = "failed"
+            db.commit()
+        else:
+            db.rollback()
 
     finally:
         db.close()
