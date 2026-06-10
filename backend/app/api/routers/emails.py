@@ -77,3 +77,21 @@ def sync_gmail_emails(
         )
 
     return emails
+
+@router.post("/process-pending")
+def process_pending_emails(
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    emails = email_service.get_pending_or_failed_emails(db=db)
+
+    for email in emails:
+        background_tasks.add_task(
+            email_service.process_email_with_ai,
+            email.id,
+        )
+
+    return {
+        "message": "Pending emails processing started",
+        "count": len(emails),
+    }

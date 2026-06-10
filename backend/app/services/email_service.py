@@ -187,3 +187,27 @@ def process_email_with_ai(email_id: int) -> None:
 
     finally:
         db.close()
+
+
+
+def process_pending_emails(db: Session) -> int:
+    emails = (
+        db.query(Email)
+        .filter(
+            Email.ai_status.in_(["pending", "failed"])
+        )
+        .all()
+    )
+
+    for email in emails:
+        process_email_with_ai(email.id)
+
+    return len(emails)
+
+def get_pending_or_failed_emails(db: Session, limit: int = 3) -> list[Email]:
+    return (
+        db.query(Email)
+        .filter(Email.ai_status.in_(["pending", "failed"]))
+        .limit(limit)
+        .all()
+    )
