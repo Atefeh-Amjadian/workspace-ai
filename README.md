@@ -1,8 +1,12 @@
 # Workspace AI
 
-## Overview
+AI-powered Email Workflow Assistant built with FastAPI, PostgreSQL, Gmail API, and Ollama.
 
-Workspace AI is an AI-powered email assistant platform designed to automate repetitive email management tasks.
+---
+
+# Overview
+
+Workspace AI is an intelligent email assistant platform designed to automate repetitive email management tasks.
 
 The system integrates Gmail, AI-powered text processing, and workflow automation to help users manage emails more efficiently.
 
@@ -18,15 +22,31 @@ Current capabilities include:
 
 ---
 
-## Features
+# Screenshots
 
-### Gmail Integration
+## Swagger API
+
+![Swagger API](docs/images/swagger.png)
+
+## Dashboard Statistics
+
+![Dashboard](docs/images/dashboard.png)
+
+## Retry Endpoint
+
+![Retry Endpoint](docs/images/retry-endpoint.png)
+
+---
+
+# Features
+
+## Gmail Integration
 
 * Read unread Gmail messages
 * Synchronize emails into PostgreSQL
 * Prevent duplicate email imports
 
-### AI Email Processing
+## AI Email Processing
 
 * Generate concise email summaries
 * Classify emails into categories:
@@ -37,17 +57,17 @@ Current capabilities include:
   * Spam
 * Generate draft replies
 
-### Background Processing
+## Background Processing
 
 AI tasks run in the background to keep API responses fast and responsive.
 
-### Reliability Features
+## Reliability Features
 
 * AI processing status tracking
 * Pending / Processing / Completed / Failed states
 * Retry endpoint for failed or pending AI tasks
 
-### Dashboard
+## Dashboard
 
 Provides analytics such as:
 
@@ -59,167 +79,216 @@ Provides analytics such as:
 
 ---
 
-## Architecture
+# Architecture
 
-Gmail API
-
-↓
-
-FastAPI Backend
-
-↓
-
-PostgreSQL Database
-
-↓
-
-Ollama Local LLM
-
-↓
-
-Dashboard & API Endpoints
+```text
+                Gmail API
+                    │
+                    ▼
+         ┌─────────────────────┐
+         │    FastAPI Backend  │
+         └─────────┬───────────┘
+                   │
+        ┌──────────┴──────────┐
+        ▼                     ▼
+ PostgreSQL             Ollama (Phi3)
+ Database                Local LLM
+        │                     │
+        └──────────┬──────────┘
+                   ▼
+            Dashboard APIs
+```
 
 ---
 
-## Tech Stack
+# Tech Stack
 
-Backend:
+## Backend
 
 * Python
 * FastAPI
 * SQLAlchemy
 * Alembic
 
-Database:
+## Database
 
 * PostgreSQL
 
-AI:
+## AI
 
 * Ollama
 * Phi3 Mini
 
-Infrastructure:
+## Infrastructure
 
 * Docker
 * Docker Compose
 
-External Services:
+## External Services
 
 * Gmail API
 
 ---
 
-## Project Structure
+# Project Structure
 
-backend/
-
-├── app/
-
-│ ├── api/
-
-│ ├── core/
-
-│ ├── db/
-
-│ ├── models/
-
-│ ├── schemas/
-
-│ └── services/
-
-├── alembic/
-
-├── credentials/
-
-├── requirements.txt
-
-└── .env
+```text
+workspace-ai/
+│
+├── backend/
+│   ├── alembic/
+│   ├── app/
+│   │   ├── api/
+│   │   ├── core/
+│   │   ├── db/
+│   │   ├── models/
+│   │   ├── schemas/
+│   │   └── services/
+│   ├── credentials/
+│   ├── requirements.txt
+│   └── .env
+│
+├── docs/
+│   └── images/
+│
+├── database/
+│
+├── docker-compose.yml
+│
+└── README.md
+```
 
 ---
 
-## Installation
+# Installation
 
-### Clone Repository
+## Clone Repository
 
-git clone <repository-url>
+```bash
+git clone https://github.com/Atefeh-Amjadian/workspace-ai.git
 
 cd workspace-ai/backend
+```
 
-### Create Virtual Environment
+## Create Virtual Environment
 
+```bash
 python -m venv venv
 
 source venv/bin/activate
+```
 
-### Install Dependencies
+## Install Dependencies
 
+```bash
 pip install -r requirements.txt
+```
 
 ---
 
-## Environment Variables
+# Environment Variables
 
-Create a .env file:
+Create a `.env` file inside the backend directory:
 
-DATABASE_URL=postgresql://user:password@localhost:5432/workspace_ai
+```env
+DATABASE_URL=postgresql://postgres:postgres@localhost:5432/workspace_ai
 
 OLLAMA_BASE_URL=http://localhost:11434
 
 OLLAMA_MODEL=phi3:mini
+```
 
 ---
 
-## Running the Project
+# Running the Project
 
-### Start PostgreSQL
+## Start PostgreSQL
 
+```bash
 docker compose up -d
+```
 
-### Start FastAPI
+## Start FastAPI
+
+```bash
+cd backend
+
+source venv/bin/activate
 
 uvicorn app.main:app --reload
+```
 
-### Swagger UI
+## Swagger UI
 
+```text
 http://127.0.0.1:8000/docs
+```
 
 ---
 
-## API Endpoints
+# API Endpoints
 
-### Gmail
+## Gmail
 
+```http
 POST /emails/sync-gmail
+```
 
-### Email Processing
-
-POST /emails/{id}/summarize
-
-POST /emails/{id}/classify
-
-POST /emails/{id}/draft-reply
-
-POST /emails/process-pending
-
-### Dashboard
-
-GET /dashboard/stats
+Synchronize unread Gmail emails into PostgreSQL.
 
 ---
 
-## Reliability Features
+## Email Processing
+
+```http
+POST /emails/{id}/summarize
+```
+
+Generate email summary.
+
+```http
+POST /emails/{id}/classify
+```
+
+Classify email category.
+
+```http
+POST /emails/{id}/draft-reply
+```
+
+Generate AI draft reply.
+
+```http
+POST /emails/process-pending
+```
+
+Retry pending or failed AI processing tasks.
+
+---
+
+## Dashboard
+
+```http
+GET /dashboard/stats
+```
+
+Retrieve email analytics statistics.
+
+---
+
+# Reliability Features
 
 The system includes:
 
 * Background AI processing
 * AI task status tracking
-* Retry mechanism
+* Pending / Processing / Completed / Failed workflow
+* Retry endpoint
 * Database migrations using Alembic
 
 ---
 
-## Future Improvements
+# Future Improvements
 
 * Telegram daily reports
 * Gmail draft creation
@@ -231,9 +300,10 @@ The system includes:
 
 ---
 
-## Author
+# Author
 
-Atefeh Amjadian
+**Atefeh Amjadian**
 
 GitHub:
+
 https://github.com/Atefeh-Amjadian
