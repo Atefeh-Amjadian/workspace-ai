@@ -5,6 +5,7 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
+from google.auth.exceptions import RefreshError
 
 
 SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
@@ -12,7 +13,8 @@ SCOPES = ["https://www.googleapis.com/auth/gmail.readonly"]
 BASE_DIR = Path(__file__).resolve().parents[2]
 CREDENTIALS_PATH = BASE_DIR / "credentials" / "credentials.json"
 TOKEN_PATH = BASE_DIR / "token.json"
-
+class GmailAuthError(Exception):
+    pass
 
 def get_gmail_service():
     creds = None

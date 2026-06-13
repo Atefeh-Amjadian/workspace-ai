@@ -4,6 +4,7 @@ from sqlalchemy.orm import Session
 from app.db.dependencies import get_db
 from app.schemas.email import EmailCreate, EmailResponse
 from app.services import email_service
+from app.services.gmail_service import GmailAuthError
 
 router = APIRouter(prefix="/emails", tags=["emails"])
 
@@ -68,7 +69,14 @@ def sync_gmail_emails(
     background_tasks: BackgroundTasks,
     db: Session = Depends(get_db),
 ):
-    emails = email_service.sync_unread_gmail_emails(db=db)
+    try:
+        emails = email_service.sync_unread_gmail_emails(db=db)
+
+    except GmailAuthError as error:
+        raise HTTPException(
+            status_code=401,
+            detail=str(error),
+        ) from error
 
     for email in emails:
         background_tasks.add_task(
