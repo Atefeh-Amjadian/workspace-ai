@@ -8,6 +8,12 @@ from app.services.gmail_service import GmailAuthError
 
 router = APIRouter(prefix="/emails", tags=["emails"])
 
+def handle_ai_error(error: RuntimeError):
+    raise HTTPException(
+        status_code=503,
+        detail=str(error),
+    ) from error
+
 
 @router.post("/", response_model=EmailResponse)
 def create_email(email_data: EmailCreate, db: Session = Depends(get_db)):
@@ -33,8 +39,7 @@ def summarize_email(email_id: int, db: Session = Depends(get_db)):
     try:
         email = email_service.summarize_email(db=db, email_id=email_id)
     except RuntimeError as error:
-        raise HTTPException(status_code=503, detail=str(error))
-
+        handle_ai_error(error)
     if email is None:
         raise HTTPException(status_code=404, detail="Email not found")
 
@@ -45,8 +50,7 @@ def generate_draft_reply(email_id: int, db: Session = Depends(get_db)):
     try:
         email = email_service.generate_draft_reply(db=db, email_id=email_id)
     except RuntimeError as error:
-        raise HTTPException(status_code=503, detail=str(error))
-
+        handle_ai_error(error)
     if email is None:
         raise HTTPException(status_code=404, detail="Email not found")
 
@@ -57,8 +61,7 @@ def classify_email(email_id: int, db: Session = Depends(get_db)):
     try:
         email = email_service.classify_email(db=db, email_id=email_id)
     except RuntimeError as error:
-        raise HTTPException(status_code=503, detail=str(error))
-
+        handle_ai_error(error)
     if email is None:
         raise HTTPException(status_code=404, detail="Email not found")
 
