@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Workspace AI - Email Dashboard</title>
+  
+</head>
+<body>
+    <h1>Workspace AI - Email Dashboard</h1>
+
+    <h2>Dashboard Stats</h2>
+    <ul>
+        <li>Total Emails: {{ stats.total_emails }}</li>
+        <li>Urgent: {{ stats.urgent }}</li>
+        <li>Important: {{ stats.important }}</li>
+        <li>FYI: {{ stats.fyi }}</li>
+        <li>Spam: {{ stats.spam }}</li>
+    </ul>
+
+    <h2>Actions</h2>
+
+<form action="/web/sync-gmail" method="post">
+    <button type="submit">Sync Gmail</button>
+</form>
+
+<br>
+
+<form action="/web/process-pending" method="post">
+    <button type="submit">Process Pending Emails</button>
+</form>
+
+<br>
+
+<form action="/web/retry-failed" method="post">
+    <button type="submit">Retry Failed Emails</button>
+</form>
+
+    <h2>Emails</h2>
+
+    <table border="1" cellpadding="8">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Subject</th>
+                <th>Sender</th>
+                <th>Category</th>
+                <th>AI Status</th>
+                <th>Summary</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for email in emails %}
+            <tr>
+                <td>{{ email.id }}</td>
+                <td>{{ email.subject }}</td>
+                <td>{{ email.sender }}</td>
+                <td>{{ email.category }}</td>
+                <td>{{ email.ai_status }}</td>
+                <td>{{ email.summary or "Not processed yet" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</body>
+</html>

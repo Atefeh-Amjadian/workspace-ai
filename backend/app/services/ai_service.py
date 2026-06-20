@@ -17,10 +17,15 @@ def generate_text(prompt: str) -> str:
     }
 
     try:
-        response = httpx.post(url, json=payload, timeout=120)
+        response = httpx.post(
+            url,
+            json=payload,
+            timeout=120,
+        )
         response.raise_for_status()
 
         data = response.json()
+
         return data["response"].strip()
 
     except httpx.ConnectError:
@@ -40,11 +45,17 @@ def generate_text(prompt: str) -> str:
         raise RuntimeError("AI service returned an invalid response")
 
 
-def summarize_text(subject: str, sender: str, snippet: str | None, category: str) -> str:
+def summarize_text(
+    subject: str,
+    sender: str,
+    snippet: str | None,
+    category: str,
+) -> str:
     prompt = f"""
 You are an email assistant.
 
-Summarize this email in one concise sentence.
+Task:
+Write exactly ONE short sentence summarizing the email.
 
 Email:
 Subject: {subject}
@@ -53,19 +64,34 @@ Snippet: {snippet or "No email content available"}
 Category: {category}
 
 Rules:
-- Keep it short.
-- Do not invent details.
-- Use clear and simple English.
+- Maximum 15 words.
+- One sentence only.
+- No explanations.
+- No reasoning.
+- No bullet points.
+- No introductions.
+- No conclusions.
+- Return only the summary.
 """
 
-    return generate_text(prompt)
+    summary = generate_text(prompt)
+
+    summary = summary.split("\n")[0].strip()
+
+    return summary[:200]
 
 
-def classify_text(subject: str, sender: str, snippet: str | None, summary: str | None) -> str:
+def classify_text(
+    subject: str,
+    sender: str,
+    snippet: str | None,
+    summary: str | None,
+) -> str:
     prompt = f"""
 You are an email classification assistant.
 
 Classify the email into exactly one of these categories:
+
 urgent
 important
 fyi
@@ -89,7 +115,12 @@ Rules:
 
     category = generate_text(prompt).lower().strip()
 
-    allowed_categories = {"urgent", "important", "fyi", "spam"}
+    allowed_categories = {
+        "urgent",
+        "important",
+        "fyi",
+        "spam",
+    }
 
     if category not in allowed_categories:
         return "fyi"
@@ -97,7 +128,13 @@ Rules:
     return category
 
 
-def generate_reply(subject: str, sender: str, snippet: str | None, category: str, summary: str | None) -> str:
+def generate_reply(
+    subject: str,
+    sender: str,
+    snippet: str | None,
+    category: str,
+    summary: str | None,
+) -> str:
     prompt = f"""
 You are an email assistant.
 
@@ -116,6 +153,7 @@ Rules:
 - Do not include placeholders like [Your Name].
 - Do not invent details.
 - Use clear and simple English.
+- Return only the reply.
 """
 
     return generate_text(prompt)
