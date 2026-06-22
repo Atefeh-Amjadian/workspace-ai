@@ -7,28 +7,44 @@ from app.services.dashboard_service import get_email_stats
 def build_email_report(db: Session) -> str:
     stats = get_email_stats(db=db)
 
-    latest_emails = (
+    urgent_emails = (
         db.query(Email)
+        .filter(Email.category == "urgent")
         .order_by(Email.id.desc())
-        .limit(5)
+        .limit(3)
+        .all()
+    )
+
+    important_emails = (
+        db.query(Email)
+        .filter(Email.category == "important")
+        .order_by(Email.id.desc())
+        .limit(3)
         .all()
     )
 
     report_lines = [
-        "📬 Workspace AI Email Report",
+        "📬 Workspace AI Smart Brief",
         "",
-        f"Total Emails: {stats['total_emails']}",
-        f"🚨 Urgent: {stats['urgent']}",
-        f"⭐ Important: {stats['important']}",
-        f"📌 FYI: {stats['fyi']}",
-        f"🗑 Spam: {stats['spam']}",
+        f"You have {stats['urgent']} urgent emails and {stats['important']} important emails.",
         "",
-        "Latest Emails:",
+        "Top priorities:",
     ]
 
-    for email in latest_emails:
-        report_lines.append(
-            f"- [{email.category}] {email.subject}"
-        )
+    for email in urgent_emails:
+        report_lines.append(f"🚨 {email.subject}")
+
+    for email in important_emails:
+        report_lines.append(f"⭐ {email.subject}")
+
+    report_lines.extend(
+        [
+            "",
+            f"Processed emails: {stats['total_emails']}",
+            "",
+            "Recommended action:",
+            "Review urgent security and job-related emails first.",
+        ]
+    )
 
     return "\n".join(report_lines)
