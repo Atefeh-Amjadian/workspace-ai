@@ -1,224 +1,179 @@
 # Workspace AI
 
-AI-powered Email Workflow Assistant built with FastAPI, PostgreSQL, Gmail API, and Ollama.
+AI-powered workspace assistant built with FastAPI, PostgreSQL, Ollama, Gmail API, and Telegram Bot API.
+
+Workspace AI helps automate email workflows by synchronizing Gmail messages, storing them in a database, processing them with local AI models, generating summaries and draft replies, and delivering intelligent reports through Telegram.
 
 ---
 
-# Overview
+## Features
 
-Workspace AI is an intelligent email assistant platform designed to automate repetitive email management tasks.
+### Gmail Integration
 
-The system integrates Gmail, AI-powered text processing, and workflow automation to help users manage emails more efficiently.
-
-Current capabilities include:
-
-* Synchronizing unread Gmail emails
-* AI-generated email summaries
-* Email classification (Urgent, Important, FYI, Spam)
-* AI-generated draft replies
-* Dashboard analytics
-* Background AI processing
-* Retry mechanism for failed AI tasks
-
----
-
-# Screenshots
-
-## Swagger API
-
-![Swagger API](docs/images/swagger.png)
-
-## Dashboard Statistics
-
-![Dashboard](docs/images/dashboard.png)
-
-## Retry Endpoint
-
-![Retry Endpoint](docs/images/retry-endpoint.png)
-
----
-
-# Features
-
-## Gmail Integration
-
-* Read unread Gmail messages
-* Synchronize emails into PostgreSQL
+* Sync unread emails from Gmail
+* Store emails in PostgreSQL
 * Prevent duplicate email imports
 
-## AI Email Processing
+### Email Dashboard
 
-* Generate concise email summaries
-* Classify emails into categories:
+* Web-based email dashboard
+* View synced emails
+* Email statistics overview
+* Email detail page
 
-  * Urgent
-  * Important
-  * FYI
-  * Spam
-* Generate draft replies
+### AI Processing
 
-## Background Processing
+* AI email summarization
+* AI email classification
+* AI-generated draft replies
+* Local LLM processing using Ollama
 
-AI tasks run in the background to keep API responses fast and responsive.
+### Telegram Integration
 
-## Reliability Features
+* Send Telegram notifications
+* Send email summary reports
+* Smart email brief generation
 
-* AI processing status tracking
-* Pending / Processing / Completed / Failed states
-* Retry endpoint for failed or pending AI tasks
+### Agent Workflow
 
-## Dashboard
-
-Provides analytics such as:
-
-* Total emails
-* Urgent emails
-* Important emails
-* FYI emails
-* Spam emails
+* One-click email agent execution
+* Gmail synchronization workflow
+* Email processing workflow
+* Telegram reporting workflow
 
 ---
 
-# Architecture
+## Architecture
 
 ```text
-                Gmail API
-                    │
-                    ▼
-         ┌─────────────────────┐
-         │    FastAPI Backend  │
-         └─────────┬───────────┘
-                   │
-        ┌──────────┴──────────┐
-        ▼                     ▼
- PostgreSQL             Ollama (Phi3)
- Database                Local LLM
-        │                     │
-        └──────────┬──────────┘
-                   ▼
-            Dashboard APIs
+Gmail API
+    ↓
+Email Sync Service
+    ↓
+PostgreSQL
+    ↓
+AI Processing (Ollama)
+    ├── Summarization
+    ├── Classification
+    └── Draft Reply Generation
+    ↓
+Telegram Notifications
+    ↓
+Email Agent Workflow
 ```
 
----
+## Tech Stack
 
-# Tech Stack
-
-## Backend
+### Backend
 
 * Python
 * FastAPI
 * SQLAlchemy
+* PostgreSQL
 * Alembic
 
-## Database
-
-* PostgreSQL
-
-## AI
+### AI
 
 * Ollama
-* Phi3 Mini
+* Phi-3 Mini
 
-## Infrastructure
+### Integrations
+
+* Gmail API
+* Telegram Bot API
+
+### Infrastructure
 
 * Docker
 * Docker Compose
 
-## External Services
+---
 
-* Gmail API
+## Current Functionality
+
+Implemented:
+
+* Gmail synchronization
+* Email storage
+* Email dashboard
+* Email statistics
+* AI summarization
+* AI classification
+* Draft reply generation
+* Telegram notifications
+* Smart email reports
+* Email agent workflow
 
 ---
 
-# Project Structure
+## Future Roadmap
 
-```text
-workspace-ai/
-│
-├── backend/
-│   ├── alembic/
-│   ├── app/
-│   │   ├── api/
-│   │   ├── core/
-│   │   ├── db/
-│   │   ├── models/
-│   │   ├── schemas/
-│   │   └── services/
-│   ├── credentials/
-│   ├── requirements.txt
-│   └── .env
-│
-├── docs/
-│   └── images/
-│
-├── database/
-│
-├── docker-compose.yml
-│
-└── README.md
-```
+### Agent Memory
+
+* Agent execution history
+* Run tracking
+* State management
+
+### Background Processing
+
+* Celery
+* Redis
+* Worker queues
+
+### Advanced Agents
+
+* Multi-agent workflows
+* Autonomous task execution
+* Decision-making agents
+
+### Knowledge Systems
+
+* RAG integration
+* Internal knowledge base
+* Semantic search
 
 ---
 
-# Installation
+## Quick Start
 
-## Clone Repository
+Clone the repository:
 
 ```bash
 git clone https://github.com/Atefeh-Amjadian/workspace-ai.git
-
-cd workspace-ai/backend
+cd workspace-ai
 ```
 
-## Create Virtual Environment
-
-```bash
-python -m venv venv
-
-source venv/bin/activate
-```
-
-## Install Dependencies
-
-```bash
-pip install -r requirements.txt
-```
-
----
-
-# Environment Variables
-
-Create a `.env` file inside the backend directory:
+Create environment variables:
 
 ```env
-DATABASE_URL=postgresql://postgres:postgres@localhost:5432/workspace_ai
-
+DATABASE_URL=
 OLLAMA_BASE_URL=http://localhost:11434
-
 OLLAMA_MODEL=phi3:mini
+
+GMAIL_CREDENTIALS_FILE=
+GMAIL_TOKEN_FILE=
+
+TELEGRAM_BOT_TOKEN=
+TELEGRAM_CHAT_ID=
 ```
 
----
-
-# Running the Project
-
-## Start PostgreSQL
+Run the application:
 
 ```bash
-docker compose up -d
+docker compose up --build
 ```
 
-## Start FastAPI
+Or locally:
 
 ```bash
-cd backend
-
-source venv/bin/activate
-
 uvicorn app.main:app --reload
 ```
 
-## Swagger UI
+---
+
+## API Documentation
+
+Swagger UI:
 
 ```text
 http://127.0.0.1:8000/docs
@@ -226,84 +181,19 @@ http://127.0.0.1:8000/docs
 
 ---
 
-# API Endpoints
+## Project Status
 
-## Gmail
+Active Development 🚀
 
-```http
-POST /emails/sync-gmail
-```
+Current Version:
 
-Synchronize unread Gmail emails into PostgreSQL.
+* Gmail Integration
+* AI Email Processing
+* Telegram Reporting
+* Agent Workflow
 
----
+Next Milestone:
 
-## Email Processing
-
-```http
-POST /emails/{id}/summarize
-```
-
-Generate email summary.
-
-```http
-POST /emails/{id}/classify
-```
-
-Classify email category.
-
-```http
-POST /emails/{id}/draft-reply
-```
-
-Generate AI draft reply.
-
-```http
-POST /emails/process-pending
-```
-
-Retry pending or failed AI processing tasks.
-
----
-
-## Dashboard
-
-```http
-GET /dashboard/stats
-```
-
-Retrieve email analytics statistics.
-
----
-
-# Reliability Features
-
-The system includes:
-
-* Background AI processing
-* AI task status tracking
-* Pending / Processing / Completed / Failed workflow
-* Retry endpoint
-* Database migrations using Alembic
-
----
-
-# Future Improvements
-
-* Telegram daily reports
-* Gmail draft creation
-* Celery + Redis task queue
-* Automated email workflows
-* RAG-based email search
-* Calendar integration
-* Multi-agent AI workflows
-
----
-
-# Author
-
-**Atefeh Amjadian**
-
-GitHub:
-
-https://github.com/Atefeh-Amjadian
+* Agent Memory
+* Celery + Redis
+* Multi-Agent Architecture
