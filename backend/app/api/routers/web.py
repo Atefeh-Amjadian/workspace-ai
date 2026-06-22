@@ -9,6 +9,8 @@ from app.services import email_service
 from app.services.dashboard_service import get_email_stats
 from app.services.email_service import get_emails
 from app.services.gmail_service import GmailAuthError
+from app.services.report_service import build_email_report
+from app.services.telegram_service import send_telegram_message
 
 router = APIRouter(tags=["web"])
 
@@ -139,5 +141,17 @@ def web_generate_reply(
 
     return RedirectResponse(
         url=f"/emails-dashboard/{email_id}",
+        status_code=303,
+    )
+
+@router.post("/web/send-telegram-report")
+def web_send_telegram_report(
+    db: Session = Depends(get_db),
+):
+    report = build_email_report(db=db)
+    send_telegram_message(report)
+
+    return RedirectResponse(
+        url="/emails-dashboard",
         status_code=303,
     )
