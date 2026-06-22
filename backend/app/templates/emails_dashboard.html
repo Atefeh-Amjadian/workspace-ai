@@ -54,7 +54,11 @@
             {% for email in emails %}
             <tr>
                 <td>{{ email.id }}</td>
-                <td>{{ email.subject }}</td>
+                <td>
+                    <a href="/emails-dashboard/{{ email.id }}">
+                        {{ email.subject }}
+                    </a>
+                </td>
                 <td>{{ email.sender }}</td>
                 <td>{{ email.category }}</td>
                 <td>

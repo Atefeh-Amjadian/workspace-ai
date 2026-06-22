@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Email Details</title>
+</head>
+<body>
+
+<h1>Email Details</h1>
+
+<p>
+    <a href="/emails-dashboard">
+        ← Back to Dashboard
+    </a>
+</p>
+
+<hr>
+
+<h2>{{ email.subject }}</h2>
+
+<p>
+    <strong>Sender:</strong>
+    {{ email.sender }}
+</p>
+
+<p>
+    <strong>Category:</strong>
+    {{ email.category }}
+</p>
+
+<p>
+    <strong>AI Status:</strong>
+    {{ email.ai_status }}
+</p>
+
+<hr>
+
+<h3>Summary</h3>
+
+<p>
+    {{ email.summary or "No summary available." }}
+</p>
+
+<hr>
+
+<h3>Draft Reply</h3>
+
+<p>
+    {{ email.draft_reply or "No draft reply generated yet." }}
+</p>
+
+<hr>
+
+<h3>Email Snippet</h3>
+
+<p>
+    {{ email.snippet }}
+</p>
+
+</body>
+</html>

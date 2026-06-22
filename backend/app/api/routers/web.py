@@ -87,3 +87,26 @@ def web_retry_failed(
         )
 
     return RedirectResponse(url="/emails-dashboard", status_code=303)
+
+
+@router.get("/emails-dashboard/{email_id}")
+def email_detail(
+    email_id: int,
+    request: Request,
+    db: Session = Depends(get_db),
+):
+    email = email_service.get_email_by_id(db=db, email_id=email_id)
+
+    if email is None:
+        return RedirectResponse(
+            url="/emails-dashboard",
+            status_code=303,
+        )
+
+    return templates.TemplateResponse(
+        request=request,
+        name="email_detail.html",
+        context={
+            "email": email,
+        },
+    )
