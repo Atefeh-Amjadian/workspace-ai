@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Workspace AI - Email Dashboard</title>
+    <title>Workspace AI Dashboard</title>
   
 </head>
 <body>
-    <h1>Workspace AI - Email Dashboard</h1>
-
+    
+    <p>
+    AI processing may take a few minutes depending on the number of emails.
+    </p>
+    <h1>Workspace AI Dashboard</h1>
     <h2>Dashboard Stats</h2>
     <ul>
         <li>Total Emails: {{ stats.total_emails }}</li>
@@ -54,7 +57,17 @@
                 <td>{{ email.subject }}</td>
                 <td>{{ email.sender }}</td>
                 <td>{{ email.category }}</td>
-                <td>{{ email.ai_status }}</td>
+                <td>
+                    {% if email.ai_status == "pending" %}
+                    ⏳ Waiting
+                    {% elif email.ai_status == "processing" %}
+                    ⚙️ Processing
+                    {% elif email.ai_status == "completed" %}
+                    ✅ Completed
+                    {% else %}
+                    ❌ Needs Retry
+                    {% endif %}
+                    </td>
                 <td>{{ email.summary or "Not processed yet" }}</td>
             </tr>
             {% endfor %}
