@@ -11,6 +11,8 @@ from app.services.email_service import get_emails
 from app.services.gmail_service import GmailAuthError
 from app.services.report_service import build_email_report
 from app.services.telegram_service import send_telegram_message
+from app.services.agent_service import run_email_agent
+from app.services.agent_service import run_email_agent
 
 router = APIRouter(tags=["web"])
 
@@ -150,6 +152,25 @@ def web_send_telegram_report(
 ):
     report = build_email_report(db=db)
     send_telegram_message(report)
+
+    return RedirectResponse(
+        url="/emails-dashboard",
+        status_code=303,
+    )
+
+
+@router.post("/agent/run-once")
+def run_agent(
+    db: Session = Depends(get_db),
+):
+    return run_email_agent(db=db)
+
+
+@router.post("/web/run-agent")
+def web_run_agent(
+    db: Session = Depends(get_db),
+):
+    run_email_agent(db=db)
 
     return RedirectResponse(
         url="/emails-dashboard",
