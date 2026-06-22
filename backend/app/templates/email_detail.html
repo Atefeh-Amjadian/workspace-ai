@@ -2,6 +2,9 @@
 <html>
 <head>
     <title>Email Details</title>
+    {% if email.ai_status == "processing" %}
+    <meta http-equiv="refresh" content="10">
+    {% endif %}
 </head>
 <body>
 
@@ -31,6 +34,13 @@
     <strong>AI Status:</strong>
     {{ email.ai_status }}
 </p>
+{% if email.ai_status == "processing" %}
+<p>⏳ Generating reply... Please wait.</p>
+{% else %}
+<form action="/emails-dashboard/{{ email.id }}/generate-reply" method="post">
+    <button type="submit">Generate Draft Reply</button>
+</form>
+{% endif %}
 
 <hr>
 

@@ -110,3 +110,34 @@ def email_detail(
             "email": email,
         },
     )
+
+
+@router.post("/emails-dashboard/{email_id}/generate-reply")
+def web_generate_reply(
+    email_id: int,
+    background_tasks: BackgroundTasks,
+    db: Session = Depends(get_db),
+):
+    email = email_service.get_email_by_id(db=db, email_id=email_id)
+
+    if email is None:
+        return RedirectResponse(url="/emails-dashboard", status_code=303)
+
+    if email.ai_status == "processing":
+        return RedirectResponse(
+            url=f"/emails-dashboard/{email_id}",
+            status_code=303,
+        )
+
+    email.ai_status = "processing"
+    db.commit()
+
+    background_tasks.add_task(
+        email_service.process_email_with_ai,
+        email_id,
+    )
+
+    return RedirectResponse(
+        url=f"/emails-dashboard/{email_id}",
+        status_code=303,
+    )
