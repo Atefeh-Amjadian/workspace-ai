@@ -13,6 +13,7 @@ from app.services.report_service import build_email_report
 from app.services.telegram_service import send_telegram_message
 from app.services.agent_service import run_email_agent
 from app.services.agent_service import run_email_agent
+from app.services.agent_service import run_email_agent, get_recent_agent_runs
 
 router = APIRouter(tags=["web"])
 
@@ -23,13 +24,15 @@ templates = Jinja2Templates(directory="app/templates")
 def emails_dashboard(request: Request, db: Session = Depends(get_db)):
     stats = get_email_stats(db=db)
     emails = get_emails(db=db)
-
+    agent_runs = get_recent_agent_runs(db=db)
+    
     return templates.TemplateResponse(
         request=request,
         name="emails_dashboard.html",
         context={
-            "stats": stats,
-            "emails": emails,
+        "stats": stats,
+        "emails": emails,
+        "agent_runs": agent_runs,
         },
     )
 

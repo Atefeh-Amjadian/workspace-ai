@@ -51,6 +51,44 @@
     </button>
 </form>
 
+<h2>Agent Run History</h2>
+
+<table border="1" cellpadding="8">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Agent</th>
+            <th>Status</th>
+            <th>Synced</th>
+            <th>Processed</th>
+            <th>Telegram</th>
+            <th>Time</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for run in agent_runs %}
+        <tr>
+            <td>{{ run.id }}</td>
+            <td>{{ run.agent_name }}</td>
+            <td>{{ run.status }}</td>
+            <td>{{ run.synced_emails }}</td>
+            <td>{{ run.processed_emails }}</td>
+            <td>
+                {% if run.telegram_sent %}
+                    ✅ Sent
+                {% else %}
+                    ❌ Not Sent
+                {% endif %}
+            </td>
+            <td>{{ run.created_at }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<br>
+
+
     <h2>Emails</h2>
 
     <table border="1" cellpadding="8">
